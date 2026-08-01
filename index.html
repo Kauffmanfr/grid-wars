@@ -59,7 +59,6 @@ html, body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: none;
   filter: drop-shadow(0 0 20px rgba(0,240,255,0.3));
 }
 
@@ -88,18 +87,6 @@ html, body {
   overflow: hidden;
 }
 
-.menu-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.menu-btn:hover::before {
-  opacity: 1;
-}
-
 .menu-btn:active {
   transform: scale(0.96);
 }
@@ -110,7 +97,7 @@ html, body {
   box-shadow: 0 0 20px rgba(0,240,255,0.15);
 }
 
-.btn-vs-ai:hover {
+.btn-vs-ai:hover, .btn-vs-ai:active {
   background: rgba(0,240,255,0.1);
   box-shadow: 0 0 30px rgba(0,240,255,0.3);
 }
@@ -121,7 +108,7 @@ html, body {
   box-shadow: 0 0 20px rgba(255,0,85,0.15);
 }
 
-.btn-vs-player:hover {
+.btn-vs-player:hover, .btn-vs-player:active {
   background: rgba(255,0,85,0.1);
   box-shadow: 0 0 30px rgba(255,0,85,0.3);
 }
@@ -175,7 +162,7 @@ html, body {
   box-shadow: 0 0 15px rgba(0,255,136,0.1);
 }
 
-.diff-btn.easy:hover {
+.diff-btn.easy:hover, .diff-btn.easy:active {
   background: rgba(0,255,136,0.1);
   box-shadow: 0 0 25px rgba(0,255,136,0.25);
 }
@@ -186,7 +173,7 @@ html, body {
   box-shadow: 0 0 15px rgba(255,170,0,0.1);
 }
 
-.diff-btn.medium:hover {
+.diff-btn.medium:hover, .diff-btn.medium:active {
   background: rgba(255,170,0,0.1);
   box-shadow: 0 0 25px rgba(255,170,0,0.25);
 }
@@ -197,7 +184,7 @@ html, body {
   box-shadow: 0 0 15px rgba(255,0,85,0.1);
 }
 
-.diff-btn.hardcore:hover {
+.diff-btn.hardcore:hover, .diff-btn.hardcore:active {
   background: rgba(255,0,85,0.1);
   box-shadow: 0 0 25px rgba(255,0,85,0.25);
 }
@@ -214,7 +201,7 @@ html, body {
   transition: all 0.2s ease;
 }
 
-.back-btn:hover {
+.back-btn:hover, .back-btn:active {
   color: #fff;
   border-color: rgba(255,255,255,0.4);
 }
@@ -450,7 +437,7 @@ html, body {
   box-shadow: 0 0 20px rgba(0,240,255,0.3);
 }
 
-.btn-playagain:hover {
+.btn-playagain:hover, .btn-playagain:active {
   transform: scale(1.05);
   box-shadow: 0 0 30px rgba(0,240,255,0.5);
 }
@@ -469,7 +456,7 @@ html, body {
   transition: all 0.3s ease;
 }
 
-.btn-menu:hover {
+.btn-menu:hover, .btn-menu:active {
   color: #fff;
   border-color: rgba(255,255,255,0.4);
   background: rgba(255,255,255,0.05);
@@ -532,7 +519,7 @@ html, body {
   <button class="diff-btn easy" id="btnEasy">Easy</button>
   <button class="diff-btn medium" id="btnMedium">Medium</button>
   <button class="diff-btn hardcore" id="btnHardcore">Hardcore</button>
-  <button class="back-btn" id="btnDiffBack">← Back</button>
+  <button class="back-btn" id="btnDiffBack">Back</button>
 </div>
 
 <!-- ========== GAME SCREEN ========== -->
@@ -540,7 +527,7 @@ html, body {
   <div class="topbar">
     <div class="score-display">
       <span class="score-p1" id="scoreP1">P1: 0</span>
-      <span class="score-sep">—</span>
+      <span class="score-sep">-</span>
       <span class="score-p2" id="scoreP2">P2: 0</span>
     </div>
     <div class="turn-label turn-p1" id="turnLabel">BLUE TURN</div>
@@ -574,12 +561,12 @@ html, body {
   // ============================
   // CONSTANTS
   // ============================
-  const GRID_SIZE = 12;
-  const EMPTY = 0;
-  const BLUE  = 1;
-  const RED   = 2;
+  var GRID_SIZE = 12;
+  var EMPTY = 0;
+  var BLUE  = 1;
+  var RED   = 2;
 
-  const DIRS = [
+  var DIRS = [
     {dr: -1, dc: 0, name: 'up'},
     {dr:  1, dc: 0, name: 'down'},
     {dr:  0, dc: -1, name: 'left'},
@@ -589,36 +576,36 @@ html, body {
   // ============================
   // STATE
   // ============================
-  let gameMode = 'ai';      // 'ai' or 'pvp'
-  let difficulty = 'medium'; // 'easy', 'medium', 'hardcore'
-  let grid = [];
-  let bluePos = {r: 11, c: 0};
-  let redPos  = {r: 0, c: 11};
-  let turn = BLUE;
-  let gameOver = false;
-  let scoreP1 = 0;
-  let scoreP2 = 0;
-  let particles = [];
-  let animFrame = null;
+  var gameMode = 'ai';
+  var difficulty = 'medium';
+  var grid = [];
+  var bluePos = {r: 11, c: 0};
+  var redPos  = {r: 0, c: 11};
+  var turn = BLUE;
+  var gameOver = false;
+  var scoreP1 = 0;
+  var scoreP2 = 0;
+  var particles = [];
+  var animFrame = null;
 
   // ============================
   // DOM REFERENCES
   // ============================
-  const menuScreen   = document.getElementById('menuScreen');
-  const diffScreen   = document.getElementById('diffScreen');
-  const gameScreen   = document.getElementById('gameScreen');
-  const boardEl      = document.getElementById('board');
-  const wrapEl       = document.getElementById('boardWrap');
-  const turnLabel    = document.getElementById('turnLabel');
-  const overlay      = document.getElementById('overlay');
-  const resultText   = document.getElementById('resultText');
-  const resultSub    = document.getElementById('resultSub');
-  const canvas       = document.getElementById('particleCanvas');
-  const ctx          = canvas.getContext('2d');
-  const scoreP1El    = document.getElementById('scoreP1');
-  const scoreP2El    = document.getElementById('scoreP2');
-  const modeBadge    = document.getElementById('modeBadge');
-  const instructions = document.getElementById('gameInstructions');
+  var menuScreen   = document.getElementById('menuScreen');
+  var diffScreen   = document.getElementById('diffScreen');
+  var gameScreen   = document.getElementById('gameScreen');
+  var boardEl      = document.getElementById('board');
+  var wrapEl       = document.getElementById('boardWrap');
+  var turnLabel    = document.getElementById('turnLabel');
+  var overlay      = document.getElementById('overlay');
+  var resultText   = document.getElementById('resultText');
+  var resultSub    = document.getElementById('resultSub');
+  var canvas       = document.getElementById('particleCanvas');
+  var ctx          = canvas.getContext('2d');
+  var scoreP1El    = document.getElementById('scoreP1');
+  var scoreP2El    = document.getElementById('scoreP2');
+  var modeBadge    = document.getElementById('modeBadge');
+  var instructions = document.getElementById('gameInstructions');
 
   // ============================
   // MENU NAVIGATION
@@ -687,9 +674,9 @@ html, body {
 
   function initBoard() {
     boardEl.innerHTML = '';
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
-        const cell = document.createElement('div');
+    for (var r = 0; r < GRID_SIZE; r++) {
+      for (var c = 0; c < GRID_SIZE; c++) {
+        var cell = document.createElement('div');
         cell.className = 'cell';
         cell.dataset.r = r;
         cell.dataset.c = c;
@@ -707,7 +694,13 @@ html, body {
     overlay.classList.remove('active');
     wrapEl.classList.remove('shake');
 
-    grid = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(EMPTY));
+    grid = [];
+    for (var i = 0; i < GRID_SIZE; i++) {
+      grid[i] = [];
+      for (var j = 0; j < GRID_SIZE; j++) {
+        grid[i][j] = EMPTY;
+      }
+    }
 
     bluePos = {r: GRID_SIZE - 1, c: 0};
     redPos  = {r: 0, c: GRID_SIZE - 1};
@@ -726,12 +719,12 @@ html, body {
   }
 
   function render() {
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
-        const cell = getCell(r, c);
+    for (var r = 0; r < GRID_SIZE; r++) {
+      for (var c = 0; c < GRID_SIZE; c++) {
+        var cell = getCell(r, c);
         cell.className = 'cell';
 
-        const currentPlayer = turn;
+        var currentPlayer = turn;
         if (!gameOver && isValidMove(r, c, currentPlayer)) {
           cell.classList.add('valid-move');
         }
@@ -762,17 +755,18 @@ html, body {
   function isValidMove(r, c, player) {
     if (r < 0 || r >= GRID_SIZE || c < 0 || c >= GRID_SIZE) return false;
     if (grid[r][c] !== EMPTY) return false;
-    const pos = player === BLUE ? bluePos : redPos;
-    const dr = Math.abs(r - pos.r);
-    const dc = Math.abs(c - pos.c);
+    var pos = player === BLUE ? bluePos : redPos;
+    var dr = Math.abs(r - pos.r);
+    var dc = Math.abs(c - pos.c);
     return (dr === 1 && dc === 0) || (dr === 0 && dc === 1);
   }
 
   function getValidMoves(pos) {
-    const moves = [];
-    for (const d of DIRS) {
-      const nr = pos.r + d.dr;
-      const nc = pos.c + d.dc;
+    var moves = [];
+    for (var i = 0; i < DIRS.length; i++) {
+      var d = DIRS[i];
+      var nr = pos.r + d.dr;
+      var nc = pos.c + d.dc;
       if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE && grid[nr][nc] === EMPTY) {
         moves.push({r: nr, c: nc, dir: d.name});
       }
@@ -785,29 +779,29 @@ html, body {
     if (!isValidMove(r, c, turn)) return;
 
     if (turn === BLUE) {
-      bluePos = {r, c};
+      bluePos = {r: r, c: c};
       grid[r][c] = BLUE;
     } else {
-      redPos = {r, c};
+      redPos = {r: r, c: c};
       grid[r][c] = RED;
     }
 
-    // Check if opponent is trapped
-    const opponent = turn === BLUE ? RED : BLUE;
-    const opponentPos = opponent === BLUE ? bluePos : redPos;
+    var opponent = turn === BLUE ? RED : BLUE;
+    var opponentPos = opponent === BLUE ? bluePos : redPos;
     if (getValidMoves(opponentPos).length === 0) {
       endGame(turn);
       return;
     }
 
-    // Switch turn
     turn = opponent;
     render();
 
-    // AI turn if applicable
     if (gameMode === 'ai' && turn === RED && !gameOver) {
       setTimeout(aiTurn, 400);
     }
   }
 
-  // ==
+  // ============================
+  // AI LOGIC
+  // ============================
+  
