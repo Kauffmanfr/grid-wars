@@ -5,157 +5,831 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Grid Wars</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
-html,body{background:#0a0a0f;font-family:'Segoe UI',system-ui,sans-serif;color:#e0e0e0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;width:100%;touch-action:manipulation}
-.menu-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100vh;position:fixed;inset:0;background:radial-gradient(ellipse at center,#1a1a2e 0%,#0a0a0f 70%);z-index:100;transition:opacity .5s ease,transform .5s ease}
-.menu-screen.hidden{opacity:0;pointer-events:none;transform:scale(1.05)}
-.menu-title{font-size:3rem;font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:8px;background:linear-gradient(135deg,#00f0ff,#ff0055);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(0,240,255,.3))}
-.menu-subtitle{font-size:.9rem;color:rgba(255,255,255,.4);letter-spacing:6px;text-transform:uppercase;margin-bottom:50px}
-.menu-btn{width:280px;padding:16px 24px;margin:10px 0;font-size:1.1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:2px solid;border-radius:14px;background:transparent;cursor:pointer;transition:all .3s ease}
-.menu-btn:active{transform:scale(.96)}
-.btn-vs-ai{color:#00f0ff;border-color:#00f0ff;box-shadow:0 0 20px rgba(0,240,255,.15)}
-.btn-vs-ai:active{background:rgba(0,240,255,.1);box-shadow:0 0 30px rgba(0,240,255,.3)}
-.btn-vs-player{color:#ff0055;border-color:#ff0055;box-shadow:0 0 20px rgba(255,0,85,.15)}
-.btn-vs-player:active{background:rgba(255,0,85,.1);box-shadow:0 0 30px rgba(255,0,85,.3)}
-.difficulty-screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100vh;position:fixed;inset:0;background:radial-gradient(ellipse at center,#1a1a2e 0%,#0a0a0f 70%);z-index:101}
-.difficulty-screen.active{display:flex}
-.diff-title{font-size:1.8rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:40px;color:#00f0ff;text-shadow:0 0 15px rgba(0,240,255,.4)}
-.diff-btn{width:260px;padding:14px 20px;margin:8px 0;font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:2px solid;border-radius:12px;background:transparent;cursor:pointer;transition:all .3s ease}
-.diff-btn.easy{color:#00ff88;border-color:#00ff88}
-.diff-btn.medium{color:#ffaa00;border-color:#ffaa00}
-.diff-btn.hardcore{color:#ff0055;border-color:#ff0055}
-.back-btn{margin-top:30px;padding:10px 24px;font-size:.85rem;color:rgba(255,255,255,.5);background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;cursor:pointer}
-.game-screen{display:none;flex-direction:column;align-items:center;justify-content:flex-start;width:100%;min-height:100vh;padding:10px}
-.game-screen.active{display:flex}
-.topbar{width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:10px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;backdrop-filter:blur(8px)}
-.score-display{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:700}
-.score-p1{color:#00f0ff;text-shadow:0 0 8px rgba(0,240,255,.5)}
-.score-p2{color:#ff0055;text-shadow:0 0 8px rgba(255,0,85,.5)}
-.score-sep{color:rgba(255,255,255,.3);font-weight:400}
-.turn-label{font-size:.85rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border-radius:8px;transition:all .3s ease}
-.turn-p1{color:#00f0ff;background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.2);box-shadow:0 0 12px rgba(0,240,255,.1)}
-.turn-p2{color:#ff0055;background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);box-shadow:0 0 12px rgba(255,0,85,.1)}
-.mode-badge{font-size:.65rem;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase}
-.board-wrap{position:relative;width:calc(100% - 20px);max-width:520px;aspect-ratio:1/1;background:#12121f;border:2px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;box-shadow:0 0 50px rgba(0,240,255,.04),inset 0 0 60px rgba(0,0,0,.5)}
-.board{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(12,1fr);width:100%;height:100%}
-.cell{border:.5px solid rgba(255,255,255,.02);position:relative;pointer-events:auto;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;cursor:pointer;transition:background .12s ease}
-.cell.wall-blue{background:#00f0ff;box-shadow:0 0 10px #00f0ff,inset 0 0 6px rgba(255,255,255,.4);border-color:rgba(0,240,255,.4);z-index:1}
-.cell.wall-red{background:#ff0055;box-shadow:0 0 10px #ff0055,inset 0 0 6px rgba(255,255,255,.4);border-color:rgba(255,0,85,.4);z-index:1}
-.cell.head-blue{background:#00f0ff;box-shadow:0 0 20px #00f0ff,0 0 8px #fff,inset 0 0 10px rgba(255,255,255,.6);border:2px solid #fff;z-index:3;animation:headPulse 1.2s infinite ease-in-out}
-.cell.head-red{background:#ff0055;box-shadow:0 0 20px #ff0055,0 0 8px #fff,inset 0 0 10px rgba(255,255,255,.6);border:2px solid #fff;z-index:3;animation:headPulse 1.2s infinite ease-in-out}
-@keyframes headPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.88);opacity:.85}}
-.cell.valid-move{background:rgba(0,240,255,.08)}
-.cell.valid-move::after{content:'';position:absolute;top:30%;left:30%;right:30%;bottom:30%;background:rgba(0,240,255,.5);border-radius:50%;box-shadow:0 0 10px rgba(0,240,255,.6);animation:pulseDot 1s infinite ease-in-out;pointer-events:none}
-@keyframes pulseDot{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1.3)}}
-.particle-canvas{position:absolute;inset:0;pointer-events:none;z-index:10}
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);z-index:20;opacity:0;pointer-events:none;transition:opacity .5s ease}
-.overlay.active{opacity:1;pointer-events:auto}
-.overlay h2{font-size:2.6rem;margin-bottom:12px;text-transform:uppercase;letter-spacing:4px;font-weight:900}
-.win-blue{color:#00f0ff;text-shadow:0 0 30px #00f0ff,0 0 60px rgba(0,240,255,.3)}
-.win-red{color:#ff0055;text-shadow:0 0 30px #ff0055,0 0 60px rgba(255,0,85,.3)}
-.overlay-sub{font-size:1rem;color:rgba(255,255,255,.5);margin-bottom:30px}
-.btn-group{display:flex;flex-direction:column;gap:12px;align-items:center}
-.btn-playagain{padding:14px 36px;font-size:1.1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#00f0ff,#0077ff);border:none;border-radius:12px;cursor:pointer;transition:all .3s ease;box-shadow:0 0 20px rgba(0,240,255,.3)}
-.btn-playagain:active{transform:scale(1.05);box-shadow:0 0 30px rgba(0,240,255,.5)}
-.btn-menu{padding:12px 30px;font-size:.95rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.6);background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:10px;cursor:pointer;transition:all .3s ease}
-.btn-menu:active{color:#fff;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.05)}
-.shake{animation:shakeAnim .5s cubic-bezier(.36,.07,.19,.97) both}
-@keyframes shakeAnim{10%,90%{transform:translate3d(-2px,0,0)}20%,80%{transform:translate3d(4px,0,0)}30%,50%,70%{transform:translate3d(-5px,0,0)}40%,60%{transform:translate3d(5px,0,0)}}
-.instructions{margin-top:12px;font-size:.8rem;color:rgba(255,255,255,.35);text-align:center;max-width:520px;padding:0 16px;line-height:1.5}
-.instructions strong{color:rgba(0,240,255,.6)}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+html, body {
+  background: #0a0a0f;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  width: 100%;
+  touch-action: manipulation;
+}
+
+/* ===== MENU ===== */
+.menu-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 70%);
+  z-index: 100;
+}
+
+.menu-screen.hidden {
+  display: none;
+}
+
+.menu-title {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #00f0ff, #ff0055);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.menu-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 50px;
+}
+
+.menu-btn {
+  width: 280px;
+  padding: 16px 24px;
+  margin: 10px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 2px solid;
+  border-radius: 14px;
+  background: transparent;
+  color: #e0e0e0;
+  cursor: pointer;
+}
+
+.btn-vs-ai {
+  color: #00f0ff;
+  border-color: #00f0ff;
+}
+
+.btn-vs-player {
+  color: #ff0055;
+  border-color: #ff0055;
+}
+
+/* ===== DIFFICULTY ===== */
+.diff-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 70%);
+  z-index: 101;
+}
+
+.diff-screen.active {
+  display: flex;
+}
+
+.diff-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 40px;
+  color: #00f0ff;
+}
+
+.diff-btn {
+  width: 260px;
+  padding: 14px 20px;
+  margin: 8px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 2px solid;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.diff-btn.easy { color: #00ff88; border-color: #00ff88; }
+.diff-btn.medium { color: #ffaa00; border-color: #ffaa00; }
+.diff-btn.hardcore { color: #ff0055; border-color: #ff0055; }
+.diff-btn.master { color: #aa00ff; border-color: #aa00ff; }
+
+.back-btn {
+  margin-top: 30px;
+  padding: 10px 24px;
+  color: rgba(255,255,255,0.5);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ===== GAME ===== */
+.game-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 10px;
+}
+
+.game-screen.active {
+  display: flex;
+}
+
+.topbar {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+}
+
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.score-p1 { color: #00f0ff; }
+.score-p2 { color: #ff0055; }
+
+.turn-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 8px;
+}
+
+.turn-p1 {
+  color: #00f0ff;
+  background: rgba(0,240,255,0.08);
+  border: 1px solid rgba(0,240,255,0.2);
+}
+
+.turn-p2 {
+  color: #ff0055;
+  background: rgba(255,0,85,0.08);
+  border: 1px solid rgba(255,0,85,0.2);
+}.board-wrap {
+  position: relative;
+  width: calc(100% - 20px);
+  max-width: 520px;
+  aspect-ratio: 1 / 1;
+  background: #12121f;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  width: 100%;
+  height: 100%;
+}
+
+.cell {
+  border: 0.5px solid rgba(255,255,255,0.02);
+  position: relative;
+}
+
+.cell.wall-blue {
+  background: #00f0ff;
+  box-shadow: 0 0 10px #00f0ff;
+  z-index: 1;
+}
+
+.cell.wall-red {
+  background: #ff0055;
+  box-shadow: 0 0 10px #ff0055;
+  z-index: 1;
+}
+
+.cell.head-blue {
+  background: #00f0ff;
+  box-shadow: 0 0 20px #00f0ff, 0 0 8px #fff;
+  border: 2px solid #fff;
+  z-index: 3;
+  animation: pulse 1.2s infinite;
+}
+
+.cell.head-red {
+  background: #ff0055;
+  box-shadow: 0 0 20px #ff0055, 0 0 8px #fff;
+  border: 2px solid #fff;
+  z-index: 3;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.88); opacity: 0.85; }
+}
+
+.cell.valid-move {
+  background: rgba(0,240,255,0.12);
+  cursor: pointer;
+}
+
+.cell.valid-move::after {
+  content: '';
+  position: absolute;
+  top: 30%; left: 30%; right: 30%; bottom: 30%;
+  background: rgba(0,240,255,0.5);
+  border-radius: 50%;
+  animation: pulseDot 1s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.3; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+.particle-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.8);
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.overlay h2 {
+  font-size: 2.6rem;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.win-blue { color: #00f0ff; text-shadow: 0 0 30px #00f0ff; }
+.win-red { color: #ff0055; text-shadow: 0 0 30px #ff0055; }
+
+.btn-playagain {
+  padding: 14px 36px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #00f0ff, #0077ff);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.btn-menu {
+  padding: 12px 30px;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.6);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.shake {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.instructions {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+}
 </style>
 </head>
 <body>
+
+<!-- MENU -->
 <div class="menu-screen" id="menuScreen">
-<div class="menu-title">GRID WARS</div>
-<div class="menu-subtitle">Neon Tron Duel</div>
-<button class="menu-btn btn-vs-ai" id="btnVsAi">1 Player (vs AI)</button>
-<button class="menu-btn btn-vs-player" id="btnVsPlayer">2 Players (Local PvP)</button>
+  <div class="menu-title">GRID WARS</div>
+  <div class="menu-subtitle">Neon Tron Duel</div>
+  <button class="menu-btn btn-vs-ai" onclick="showDiff()">1 Player (vs AI)</button>
+  <button class="menu-btn btn-vs-player" onclick="startPVP()">2 Players (Local PvP)</button>
 </div>
-<div class="difficulty-screen" id="diffScreen">
-<div class="diff-title">Select Difficulty</div>
-<button class="diff-btn easy" id="btnEasy">Easy</button>
-<button class="diff-btn medium" id="btnMedium">Medium</button>
-<button class="diff-btn hardcore" id="btnHardcore">Hardcore</button>
-<button class="back-btn" id="btnDiffBack">Back</button>
+
+<!-- DIFFICULTY -->
+<div class="diff-screen" id="diffScreen">
+  <div class="diff-title">Select Difficulty</div>
+  <button class="diff-btn easy" onclick="startAI('easy')">Easy</button>
+  <button class="diff-btn medium" onclick="startAI('medium')">Medium</button>
+  <button class="diff-btn hardcore" onclick="startAI('hardcore')">Hardcore</button>
+  <button class="diff-btn master" onclick="startAI('master')">Master (3 Moves Ahead)</button>
+  <button class="back-btn" onclick="backToMenu()">Back</button>
 </div>
-<div class="game-screen" id="gameScreen">
-<div class="topbar">
-<div class="score-display"><span class="score-p1" id="scoreP1">P1: 0</span><span class="score-sep">-</span><span class="score-p2" id="scoreP2">P2: 0</span></div>
-<div class="turn-label turn-p1" id="turnLabel">BLUE TURN</div>
-<div class="mode-badge" id="modeBadge">VS AI</div>
+
+<!-- GAME --><div class="game-screen" id="gameScreen">
+  <div class="topbar">
+    <div class="score-display">
+      <span class="score-p1" id="scoreP1">P1: 0</span>
+      <span>-</span>
+      <span class="score-p2" id="scoreP2">P2: 0</span>
+    </div>
+    <div class="turn-label turn-p1" id="turnLabel">YOUR TURN</div>
+  </div>
+
+  <div class="board-wrap" id="boardWrap">
+    <div class="board" id="board"></div>
+    <canvas class="particle-canvas" id="particleCanvas"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="resultText"></h2>
+      <button class="btn-playagain" onclick="resetGame()">Play Again</button>
+      <button class="btn-menu" onclick="backToMenu()">Back to Menu</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    Tap an adjacent empty cell to extend your trail. Trap your opponent!
+  </div>
 </div>
-<div class="board-wrap" id="boardWrap">
-<div class="board" id="board"></div>
-<canvas class="particle-canvas" id="particleCanvas"></canvas>
-<div class="overlay" id="overlay">
-<h2 id="resultText"></h2>
-<div class="overlay-sub" id="resultSub"></div>
-<div class="btn-group">
-<button class="btn-playagain" id="btnPlayAgain">Play Again</button>
-<button class="btn-menu" id="btnBackToMenu">Back to Menu</button>
-</div>
-</div>
-</div>
-<div class="instructions" id="gameInstructions"><strong>How to play:</strong> Tap an adjacent empty cell to extend your trail. Trap your opponent!</div>
-</div>
+
 <script>
-(function(){
-'use strict';
-var GRID_SIZE=12,EMPTY=0,BLUE=1,RED=2;
-var DIRS=[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
-var gameMode='ai',difficulty='medium',grid=[],bluePos={r:11,c:0},redPos={r:0,c:11},turn=BLUE,gameOver=false,scoreP1=0,scoreP2=0,particles=[],animFrame=null;
-var menuScreen=document.getElementById('menuScreen'),diffScreen=document.getElementById('diffScreen'),gameScreen=document.getElementById('gameScreen'),boardEl=document.getElementById('board'),wrapEl=document.getElementById('boardWrap'),turnLabel=document.getElementById('turnLabel'),overlay=document.getElementById('overlay'),resultText=document.getElementById('resultText'),resultSub=document.getElementById('resultSub'),canvas=document.getElementById('particleCanvas'),ctx=canvas.getContext('2d'),scoreP1El=document.getElementById('scoreP1'),scoreP2El=document.getElementById('scoreP2'),modeBadge=document.getElementById('modeBadge'),instructions=document.getElementById('gameInstructions');
+// ===== CONSTANTS =====
+var GRID_SIZE = 12;
+var EMPTY = 0, BLUE = 1, RED = 2;
+var DIRS = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
 
-document.getElementById('btnVsAi').addEventListener('click',function(){menuScreen.classList.add('hidden');diffScreen.classList.add('active')});
-document.getElementById('btnVsPlayer').addEventListener('click',function(){gameMode='pvp';startGame()});
-document.getElementById('btnEasy').addEventListener('click',function(){difficulty='easy';gameMode='ai';startGame()});
-document.getElementById('btnMedium').addEventListener('click',function(){difficulty='medium';gameMode='ai';startGame()});
-document.getElementById('btnHardcore').addEventListener('click',function(){difficulty='hardcore';gameMode='ai';startGame()});
-document.getElementById('btnDiffBack').addEventListener('click',function(){diffScreen.classList.remove('active');menuScreen.classList.remove('hidden')});
-document.getElementById('btnPlayAgain').addEventListener('click',resetGame);
-document.getElementById('btnBackToMenu').addEventListener('click',function(){overlay.classList.remove('active');gameScreen.classList.remove('active');diffScreen.classList.remove('active');menuScreen.classList.remove('hidden');scoreP1=0;scoreP2=0});
+// ===== STATE =====
+var gameMode = 'ai';
+var difficulty = 'medium';
+var grid = [];
+var bluePos, redPos;
+var turn = BLUE;
+var gameOver = false;
+var scoreP1 = 0, scoreP2 = 0;
+var particles = [];
+var animFrame = null;
 
-function startGame(){diffScreen.classList.remove('active');menuScreen.classList.add('hidden');gameScreen.classList.add('active');modeBadge.textContent=gameMode==='ai'?'VS AI ('+difficulty+')':'2 PLAYERS';instructions.innerHTML=gameMode==='ai'?'<strong>How to play:</strong> Tap an adjacent empty cell to extend your trail. Trap the AI so it has nowhere to move!':'<strong>How to play:</strong> Player 1 (Blue) taps an adjacent cell, then Player 2 (Red). Trap your opponent!';updateScoreDisplay();initBoard();resetGame()}
+// ===== DOM =====
+var menuScreen = document.getElementById('menuScreen');
+var diffScreen = document.getElementById('diffScreen');
+var gameScreen = document.getElementById('gameScreen');
+var boardEl = document.getElementById('board');
+var wrapEl = document.getElementById('boardWrap');
+var turnLabel = document.getElementById('turnLabel');
+var overlay = document.getElementById('overlay');
+var resultText = document.getElementById('resultText');
+var canvas = document.getElementById('particleCanvas');
+var ctx = canvas.getContext('2d');
+var scoreP1El = document.getElementById('scoreP1');
+var scoreP2El = document.getElementById('scoreP2');
 
-function initBoard(){boardEl.innerHTML='';for(var r=0;r<GRID_SIZE;r++){for(var c=0;c<GRID_SIZE;c++){var cell=document.createElement('div');cell.className='cell';cell.dataset.r=r;cell.dataset.c=c;cell.addEventListener('touchstart',onCellTouch,{passive:false});cell.addEventListener('click',onCellClick);boardEl.appendChild(cell)}}}
+// ===== MENU FUNCTIONS =====
+function showDiff() {
+  menuScreen.classList.add('hidden');
+  diffScreen.classList.add('active');
+}
 
-function resetGame(){gameOver=false;turn=BLUE;particles=[];overlay.classList.remove('active');wrapEl.classList.remove('shake');grid=[];for(var i=0;i<GRID_SIZE;i++){grid[i]=[];for(var j=0;j<GRID_SIZE;j++){grid[i][j]=EMPTY}}bluePos={r:GRID_SIZE-1,c:0};redPos={r:0,c:GRID_SIZE-1};grid[bluePos.r][bluePos.c]=BLUE;grid[redPos.r][redPos.c]=RED;resizeCanvas();render()}
+function backToMenu() {
+  diffScreen.classList.remove('active');
+  gameScreen.classList.remove('active');
+  menuScreen.classList.remove('hidden');
+  scoreP1 = 0;
+  scoreP2 = 0;
+}
 
-function getCell(r,c){return boardEl.children[r*GRID_SIZE+c]}
+function startPVP() {
+  gameMode = 'pvp';
+  startGame();
+}
 
-function render(){for(var r=0;r<GRID_SIZE;r++){for(var c=0;c<GRID_SIZE;c++){var cell=getCell(r,c);cell.className='cell';var currentPlayer=turn;if(!gameOver&&isValidMove(r,c,currentPlayer)){cell.classList.add('valid-move')}if(grid[r][c]===BLUE)cell.classList.add('wall-blue');if(grid[r][c]===RED)cell.classList.add('wall-red')}}getCell(bluePos.r,bluePos.c).classList.add('head-blue');getCell(redPos.r,redPos.c).classList.add('head-red');if(gameOver){turnLabel.textContent='GAME OVER';turnLabel.className='turn-label'}else if(turn===BLUE){turnLabel.textContent=gameMode==='pvp'?'P1 BLUE':'YOUR TURN';turnLabel.className='turn-label turn-p1'}else{turnLabel.textContent=gameMode==='pvp'?'P2 RED':'AI TURN';turnLabel.className='turn-label turn-p2'}}
+function startAI(diff) {
+  difficulty = diff;
+  gameMode = 'ai';
+  startGame();
+}
 
-function isValidMove(r,c,player){if(r<0||r>=GRID_SIZE||c<0||c>=GRID_SIZE)return false;if(grid[r][c]!==EMPTY)return false;var pos=player===BLUE?bluePos:redPos;var dr=Math.abs(r-pos.r);var dc=Math.abs(c-pos.c);return(dr===1&&dc===0)||(dr===0&&dc===1)}
+// ===== GAME INIT =====
+function startGame() {
+  diffScreen.classList.remove('active');
+  menuScreen.classList.add('hidden');
+  gameScreen.classList.add('active');
+  updateScore();
+  initBoard();
+  resetGame();
+}
 
-function getValidMoves(pos){var moves=[];for(var i=0;i<DIRS.length;i++){var d=DIRS[i];var nr=pos.r+d.dr;var nc=pos.c+d.dc;if(nr>=0&&nr<GRID_SIZE&&nc>=0&&nc<GRID_SIZE&&grid[nr][nc]===EMPTY){moves.push({r:nr,c:nc,dir:d.name})}}return moves}
+function initBoard() {
+  boardEl.innerHTML = '';
+  for (var r = 0; r < GRID_SIZE; r++) {
+    for (var c = 0; c < GRID_SIZE; c++) {
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+      cell.addEventListener('touchstart', onTouch, {passive: false});
+      cell.addEventListener('click', onClick);
+      boardEl.appendChild(cell);
+    }
+  }
+}
 
-function movePlayer(r,c){if(gameOver)return;if(!isValidMove(r,c,turn))return;if(turn===BLUE){bluePos={r:r,c:c};grid[r][c]=BLUE}else{redPos={r:r,c:c};grid[r][c]=RED}var opponent=turn===BLUE?RED:BLUE;var opponentPos=opponent===BLUE?bluePos:redPos;if(getValidMoves(opponentPos).length===0){endGame(turn);return}turn=opponent;render();if(gameMode==='ai'&&turn===RED&&!gameOver){setTimeout(aiTurn,400)}}
+function resetGame() {
+  gameOver = false;
+  turn = BLUE;
+  particles = [];
+  overlay.classList.remove('active');
+  wrapEl.classList.remove('shake');
 
-function aiTurn(){if(gameOver)return;var moves=getValidMoves(redPos);if(moves.length===0){endGame(BLUE);return}var bestMove=null;if(difficulty==='easy'){bestMove=moves[Math.floor(Math.random()*moves.length)]}else if(difficulty==='medium'){var bestScore=-Infinity;for(var i=0;i<moves.length;i++){var m=moves[i];var score=countEmptyNeighbors(m.r,m.c)*10;var dist=Math.abs(m.r-bluePos.r)+Math.abs(m.c-bluePos.c);if(dist<=3)score+=(4-dist)*5;if(m.r===0||m.r===GRID_SIZE-1)score-=2;if(m.c===0||m.c===GRID_SIZE-1)score-=2;score+=Math.random()*3;if(score>bestScore){bestScore=score;bestMove=m}}}else{var bestScore=-Infinity;for(var i=0;i<moves.length;i++){var m=moves[i];var score=0;var reachable=floodFillCount(m.r,m.c);score+=reachable*15;var distToPlayer=Math.abs(m.r-bluePos.r)+Math.abs(m.c-bluePos.c);if(distToPlayer<=4){var neighbors=[[-1,0],[1,0],[0,-1],[0,1]];var blocksPlayer=false;for(var n=0;n<neighbors.length;n++){if(m.r+neighbors[n][0]===bluePos.r&&m.c+neighbors[n][1]===bluePos.c){blocksPlayer=true;break}}if(blocksPlayer)score+=50;var playerMovesBefore=getValidMoves(bluePos).length;grid[m.r][m.c]=RED;var playerMovesAfter=getValidMoves(bluePos).length;grid[m.r][m.c]=EMPTY;score+=(playerMovesBefore-playerMovesAfter)*20;score+=(5-distToPlayer)*5}if(m.r===0||m.r===GRID_SIZE-1)score-=4;if(m.c===0||m.c===GRID_SIZE-1)score-=4;var centerDist=Math.abs(m.r-GRID_SIZE/2)+Math.abs(m.c-GRID_SIZE/2);score-=centerDist*.5;score+=Math.random()*2;if(score>bestScore){bestScore=score;bestMove=m}}}redPos={r:bestMove.r,c:bestMove.c};grid[bestMove.r][bestMove.c]=RED;if(getValidMoves(bluePos).length===0){endGame(RED);return}turn=BLUE;render()}
+  grid = [];
+  for (var i = 0; i < GRID_SIZE; i++) {
+    grid[i] = [];
+    for (var j = 0; j < GRID_SIZE; j++) {
+      grid[i][j] = EMPTY;
+    }
+  }
 
-function countEmptyNeighbors(r,c){var count=0;for(var i=0;i<DIRS.length;i++){var d=DIRS[i];var nr=r+d.dr,nc=c+d.dc;if(nr>=0&&nr<GRID_SIZE&&nc>=0&&nc<GRID_SIZE&&grid[nr][nc]===EMPTY)count++}return count}
+  bluePos = {r: GRID_SIZE-1, c: 0};
+  redPos = {r: 0, c: GRID_SIZE-1};
+  grid[bluePos.r][bluePos.c] = BLUE;
+  grid[redPos.r][redPos.c] = RED;
 
-function floodFillCount(startR,startC){var visited=[];for(var i=0;i<GRID_SIZE;i++){visited[i]=[];for(var j=0;j<GRID_SIZE;j++){visited[i][j]=false}}var queue=[{r:startR,c:startC}];visited[startR][startC]=true;var count=0,head=0;while(head<queue.length){var curr=queue[head++];count++;for(var i=0;i<DIRS.length;i++){var d=DIRS[i];var nr=curr.r+d.dr,nc=curr.c+d.dc;if(nr>=0&&nr<GRID_SIZE&&nc>=0&&nc<GRID_SIZE&&grid[nr][nc]===EMPTY&&!visited[nr][nc]){visited[nr][nc]=true;queue.push({r:nr,c:nc})}}}return count}
+  resizeCanvas();
+  render();
+}
 
-function endGame(winner){gameOver=true;render();wrapEl.classList.add('shake');if(winner===BLUE){scoreP1++;resultText.textContent=gameMode==='pvp'?'PLAYER 1 WINS!':'YOU WIN!';resultText.className='win-blue'}else{scoreP2++;resultText.textContent=gameMode==='pvp'?'PLAYER 2 WINS!':'AI WINS!';resultText.className='win-red'}resultSub.textContent=gameMode==='pvp'?'Tap Play Again for a rematch!':(winner===BLUE?'The AI is trapped!':'You are trapped!');overlay.classList.add('active');updateScoreDisplay();spawnParticles(winner===BLUE?'blue':'red',80)}
+// ===== RENDER =====
+function getCell(r, c) {
+  return boardEl.children[r * GRID_SIZE + c];
+}
 
-function updateScoreDisplay(){scoreP1El.textContent='P1: '+scoreP1;scoreP2El.textContent='P2: '+scoreP2}
+function render() {
+  for (var r = 0; r < GRID_SIZE; r++) {
+    for (var c = 0; c < GRID_SIZE; c++) {
+      var cell = getCell(r, c);
+      cell.className = 'cell';
 
-function resizeCanvas(){var rect=wrapEl.getBoundingClientRect();canvas.width=rect.width;canvas.height=rect.height}
-window.addEventListener('resize',resizeCanvas);
+      if (!gameOver && isValidMove(r, c, turn)) {
+        cell.classList.add('valid-move');
+      }
 
-function spawnParticles(color,count){var rect=wrapEl.getBoundingClientRect();var cw=rect.width/GRID_SIZE;var ch=rect.height/GRID_SIZE;var col=color==='blue'?'#00f0ff':'#ff0055';var type=color==='blue'?BLUE:RED;for(var i=0;i<count;i++){var r,c,tries=0;do{r=Math.floor(Math.random()*GRID_SIZE);c=Math.floor(Math.random()*GRID_SIZE);tries++}while(tries<200&&grid[r][c]!==type);particles.push({x:c*cw+cw/2,y:r*ch+ch/2,vx:(Math.random()-.5)*7,vy:(Math.random()-.5)*7,life:1,decay:.008+Math.random()*.018,size:2+Math.random()*5,color:col})}if(!animFrame)loopParticles()}
+      if (grid[r][c] === BLUE) cell.classList.add('wall-blue');
+      if (grid[r][c] === RED) cell.classList.add('wall-red');
+    }
+  }
 
-function loopParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);for(var i=particles.length-1;i>=0;i--){var p=particles[i];p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;if(p.life<=0){particles.splice(i,1);continue}ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;animFrame=particles.length>0?requestAnimationFrame(loopParticles):null}
+  getCell(bluePos.r, bluePos.c).classList.add('head-blue');
+  getCell(redPos.r, redPos.c).classList.add('head-red');if (gameOver) {
+    turnLabel.textContent = 'GAME OVER';
+    turnLabel.className = 'turn-label';
+  } else if (turn === BLUE) {
+    turnLabel.textContent = gameMode === 'pvp' ? 'P1 BLUE' : 'YOUR TURN';
+    turnLabel.className = 'turn-label turn-p1';
+  } else {
+    turnLabel.textContent = gameMode === 'pvp' ? 'P2 RED' : 'AI TURN';
+    turnLabel.className = 'turn-label turn-p2';
+  }
+}
 
-function onCellTouch(e){e.preventDefault();e.stopPropagation();handleCellInput(e.target)}
-function onCellClick(e){handleCellInput(e.target)}
-function handleCellInput(target){var cell=target.closest('.cell');if(!cell)return;var r=parseInt(cell.dataset.r,10);var c=parseInt(cell.dataset.c,10);if(gameMode==='ai'&&turn!==BLUE)return;movePlayer(r,c)}
+// ===== GAME LOGIC =====
+function isValidMove(r, c, player) {
+  if (r < 0  r >= GRID_SIZE  c < 0 || c >= GRID_SIZE) return false;
+  if (grid[r][c] !== EMPTY) return false;
+  var pos = player === BLUE ? bluePos : redPos;
+  var dr = Math.abs(r - pos.r);
+  var dc = Math.abs(c - pos.c);
+  return (dr === 1 && dc === 0) || (dr === 0 && dc === 1);
+}
 
-boardEl.addEventListener('touchstart',function(e){var cell=e.target.closest('.cell');if(!cell)return;e.preventDefault();var r=parseInt(cell.dataset.r,10);var c=parseInt(cell.dataset.c,10);if(gameMode==='ai'&&turn!==BLUE)return;movePlayer(r,c)},{passive:false});
+function getValidMoves(pos) {
+  var moves = [];
+  for (var i = 0; i < DIRS.length; i++) {
+    var d = DIRS[i];
+    var nr = pos.r + d.dr;
+    var nc = pos.c + d.dc;
+    if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE && grid[nr][nc] === EMPTY) {
+      moves.push({r: nr, c: nc});
+    }
+  }
+  return moves;
+}
 
-})();
-</script>
-</body>
-</html>
+function movePlayer(r, c) {
+  if (gameOver) return;
+  if (!isValidMove(r, c, turn)) return;
+
+  if (turn === BLUE) {
+    bluePos = {r: r, c: c};
+    grid[r][c] = BLUE;
+  } else {
+    redPos = {r: r, c: c};
+    grid[r][c] = RED;
+  }
+
+  var opponent = turn === BLUE ? RED : BLUE;
+  var opponentPos = opponent === BLUE ? bluePos : redPos;
+  if (getValidMoves(opponentPos).length === 0) {
+    endGame(turn);
+    return;
+  }
+
+  turn = opponent;
+  render();
+
+  if (gameMode === 'ai' && turn === RED && !gameOver) {
+    setTimeout(aiTurn, 400);
+  }
+}
+
+// ===== AI =====
+function aiTurn() {
+  if (gameOver) return;
+  var moves = getValidMoves(redPos);
+  if (moves.length === 0) {
+    endGame(BLUE);
+    return;
+  }
+
+  var bestMove = null;
+
+  if (difficulty === 'easy') {
+    // Random-ish but avoids edges
+    var bestScore = -Infinity;
+    for (var i = 0; i < moves.length; i++) {
+      var m = moves[i];
+      var score = Math.random() * 20;
+      if (m.r === 0 || m.r === GRID_SIZE-1) score -= 5;
+      if (m.c === 0 || m.c === GRID_SIZE-1) score -= 5;
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = m;
+      }
+    }
+  }
+  else if (difficulty === 'medium') {
+    // Flood fill + basic aggression
+    var bestScore = -Infinity;
+    for (var i = 0; i < moves.length; i++) {
+      var m = moves[i];
+      var score = floodFillCount(m.r, m.c) * 8;
+      var dist = Math.abs(m.r - bluePos.r) + Math.abs(m.c - bluePos.c);
+      if (dist <= 3) score += (4 - dist) * 10;
+      if (m.r === 0 || m.r === GRID_SIZE-1) score -= 3;
+      if (m.c === 0 || m.c === GRID_SIZE-1) score -= 3;
+      score += Math.random() * 3;
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = m;
+      }
+    }
+  }
+  else if (difficulty === 'hardcore') {
+    // Aggressive blocking + space control
+    var bestScore = -Infinity;
+    for (var i = 0; i < moves.length; i++) {
+      var m = moves[i];
+      var score = floodFillCount(m.r, m.c) * 12;
+
+      var distToPlayer = Math.abs(m.r - bluePos.r) + Math.abs(m.c - bluePos.c);
+      if (distToPlayer <= 4) {
+        // Try to block player
+        var neighbors = [[-1,0],[1,0],[0,-1],[0,1]];
+        for (var n = 0; n < neighbors.length; n++) {
+          if (m.r + neighbors[n][0] === bluePos.r && m.c + neighbors[n][1] === bluePos.c) {
+            score += 50;
+          }
+        }
+        // Reduce player moves
+        var before = getValidMoves(bluePos).length;
+        grid[m.r][m.c] = RED;
+        var after = getValidMoves(bluePos).length;
+        grid[m.r][m.c] = EMPTY;
+        score += (before - after) * 20;
+      }
+
+      if (m.r === 0 || m.r === GRID_SIZE-1) score -= 5;
+      if (m.c === 0 || m.c === GRID_SIZE-1) score -= 5;
+      score += Math.random() * 2;
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = m;
+      }
+    }
+  }
+  else if (difficulty === 'master') {
+    // Minimax with alpha-beta pruning
+    bestMove = getBestMoveMinimax();
+  }redPos = {r: bestMove.r, c: bestMove.c};
+  grid[bestMove.r][bestMove.c] = RED;
+
+  if (getValidMoves(bluePos).length === 0) {
+    endGame(RED);
+    return;
+  }
+
+  turn = BLUE;
+  render();
+}
+
+function floodFillCount(startR, startC) {
+  var visited = [];
+  for (var i = 0; i < GRID_SIZE; i++) {
+    visited[i] = [];
+    for (var j = 0; j < GRID_SIZE; j++) {
+      visited[i][j] = false;
+    }
+  }
+  var queue = [{r: startR, c: startC}];
+  if (grid[startR][startC] !== EMPTY) return 0;
+  visited[startR][startC] = true;
+  var count = 0;
+  var head = 0;
+
+  while (head < queue.length) {
+    var curr = queue[head++];
+    count++;
+    for (var i = 0; i < DIRS.length; i++) {
+      var d = DIRS[i];
+      var nr = curr.r + d.dr;
+      var nc = curr.c + d.dc;
+      if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE && grid[nr][nc] === EMPTY && !visited[nr][nc]) {
+        visited[nr][nc] = true;
+        queue.push({r: nr, c: nc});
+      }
+    }
+  }
+  return count;
+}
+
+// ===== MINIMAX FOR MASTER =====
+function getBestMoveMinimax() {
+  var moves = getValidMoves(redPos);
+  var bestScore = -Infinity;
+  var bestMove = moves[0];
+
+  for (var i = 0; i < moves.length; i++) {
+    var m = moves[i];
+    // Simulate AI move
+    var savedRed = {r: redPos.r, c: redPos.c};
+    redPos = {r: m.r, c: m.c};
+    grid[m.r][m.c] = RED;
+
+    var score = minimax(2, false, -Infinity, Infinity);
+
+    // Undo
+    grid[m.r][m.c] = EMPTY;
+    redPos = savedRed;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMove = m;
+    }
+  }
+  return bestMove;
+}
+
+function minimax(depth, isMaximizing, alpha, beta) {
+  if (depth === 0) {
+    return evaluateBoard();
+  }
+
+  if (isMaximizing) {
+    var moves = getValidMoves(redPos);
+    if (moves.length === 0) return -1000;
+
+    var maxEval = -Infinity;
+    for (var i = 0; i < moves.length; i++) {
+      var m = moves[i];
+      var saved = {r: redPos.r, c: redPos.c};
+      redPos = {r: m.r, c: m.c};
+      grid[m.r][m.c] = RED;
+
+      var eval = minimax(depth - 1, false, alpha, beta);
+
+      grid[m.r][m.c] = EMPTY;
+      redPos = saved;
+
+      maxEval = Math.max(maxEval, eval);
+      alpha = Math.max(alpha, eval);
+      if (beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    var moves = getValidMoves(bluePos);
+    if (moves.length === 0) return 1000;
+
+    var minEval = Infinity;
+    for (var i = 0; i < moves.length; i++) {
+      var m = moves[i];
+      var saved = {r: bluePos.r, c: bluePos.c};
+      bluePos = {r: m.r, c: m.c};
+      grid[m.r][m.c] = BLUE;
+
+      var eval = minimax(depth - 1, true, alpha, beta);
+
+      grid[m.r][m.c] = EMPTY;
+      bluePos = saved;
+
+      minEval = Math.min(minEval, eval);
+      beta = Math.min(beta, eval);
+      if (beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
+function evaluateBoard() {
+  var redSpace = floodFillCount(redPos.r, redPos.c);
+  var blueSpace = floodFillCount(bluePos.r, bluePos.c);
+  var redMoves = getValidMoves(redPos).length;
+  var blueMoves = getValidMoves(bluePos).length;
+
+  if (redMoves === 0) return -1000;
+  if (blueMoves === 0) return 1000;
+
+  return (redSpace - blueSpace) + (redMoves - blueMoves) * 10;
+}
+
+// ===== END GAME =====
+function endGame(winner) {
+  gameOver = true;
+  render();
+  wrapEl.classList.add('shake');
+
+  if (winner === BLUE) {
+    scoreP1++;
+    resultText.textContent = gameMode === 'pvp' ? 'PLAYER 1 WINS!' : 'YOU WIN!';
+    resultText.className = 'win-blue';
+  } else {
+    scoreP2++;
+    resultText.textContent = gameMode === 'pvp' ? 'PLAYER 2 WINS!' : 'AI WINS!';
+    resultText.className = 'win-red';
+  }
+
+  overlay.classList.add('active');
+  updateScore();
+  spawnParticles(winner === BLUE ? 'blue' : 'red', 80);
+}
+
+function updateScore() {
+  scoreP1El.textContent = 'P1: ' + scoreP1;
+  scoreP2El.textContent = 'P2: ' + scoreP2;
+}
+
+// ===== PARTICLES =====
+function resizeCanvas() {
+  var rect = wrapEl.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
+window.addEventListener('resize', resizeCanvas);function spawnParticles(color, count) {
+  var rect = wrapEl.getBoundingClientRect();
+  var cw = rect.width / GRID_SIZE;
+  var ch = rect.height / GRID_SIZE;
+  var col = color === 'blue' ? '#00f0ff' : '#ff0055';
+  var type = color === 'blue' ? BLUE :
